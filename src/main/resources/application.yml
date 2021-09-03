@@ -1,0 +1,9 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 677749151878-5c8r16dr6ecnuts69b9dm78eht12f2g7.apps.googleusercontent.com
+            client-secret: lPNcf6Q5qjB5d95SbCjAYRkY
+            scope: https://www.googleapis.com/auth/drive, profile, email, openid

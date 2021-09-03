@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Demo</title>
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width" />
+<base href="/" />
+<link rel="stylesheet" type="text/css"
+    href="/webjars/bootstrap/css/bootstrap.min.css" />
+<script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+<script type="text/javascript"
+    src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <h1>Login</h1>
+    <div class="container unauthenticated">
+        <div>
+            With Google: <a href="/oauth2/authorization/google">click here</a>
+        </div>
+    </div>
+    <div class="container authenticated" style="display: none">
+        Logged in as: <span id="user"></span> (<span id="email"></span>)
+        <img id="picture">
+        <div>
+            <button onClick="logout()" class="btn btn-primary">Logout</button>
+        </div>
+    </div>
+    <div id="files" style="display: none">
+        <h3>Files</h3>
+        <table id="files-table">
+            <tr>
+                <th>Title</th>
+                <th>Size</th>
+                <th>Last Modifier</th>
+                <th>Modified Date</th>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+    <script type="text/javascript">
+          $.ajaxSetup({
+            beforeSend : function(xhr, settings) {
+              if (settings.type == 'POST' || settings.type == 'PUT'
+                  || settings.type == 'DELETE') {
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/
+                    .test(settings.url))) {
+                  // Only send the token to relative URLs i.e. locally.
+                  xhr.setRequestHeader("X-XSRF-TOKEN", Cookies
+                      .get('XSRF-TOKEN'));
+                }
+              }
+            }
+          });
+          $.get("/user", function(data) {
+              $("#user").html(data.name);
+              $("#email").html(data.email);
+              $("#picture").attr("src", data.picture);
+              $(".unauthenticated").hide();
+              $(".authenticated").show();
+          });
+          $.get("/files", function(data) {
+              if (data) {
+                  $("#files").show();
+                  data.items.forEach(item => {
+                      var row = "<tr><td>" + item.title + "</td><td>" + item.fileSize + "</td><td>" + item.lastModifyingUserName + "</td><td>" + item.modifiedDate + "</td></tr>"
+                      $("#files-table").append(row);
+                  });
+              }
+          });
+          var logout = function() {
+            $.post("/logout", function() {
+              $("#user").html('');
+              $(".unauthenticated").show();
+              $(".authenticated").hide();
+              $("#files").hide();
+            })
+            return true;
+          }
+        </script>
+</body>
+<style type="text/css">
+    td, th {
+        border: 1px solid gray;
+        padding: 5px;
+    }
+</style>
+</html>
